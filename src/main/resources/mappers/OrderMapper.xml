@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.sharding.jdbc.example.mapper.OrderMapper">
+  <resultMap id="BaseResultMap" type="com.sharding.jdbc.example.dto.Order">
+    <id column="ORDER_ID" property="orderId" jdbcType="BIGINT"></id>
+    <result column="USER_ID" property="userId" jdbcType="BIGINT"></result>
+    <result column="STATUS" property="status" jdbcType="VARCHAR"></result>
+    <collection property="orderItemList" columnPrefix="item_"
+      ofType="com.sharding.jdbc.example.dto.OrderItem">
+      <!--resultMap="com.sharding.jdbc.example.mapper.OrderItemMapper.OrderItemResultMap" >-->
+      <id column="ORDER_ITEM_ID" property="orderItemId" jdbcType="BIGINT"></id>
+      <result column="ORDER_ID" property="orderId" jdbcType="BIGINT"></result>
+      <result column="USER_ID" property="userId" jdbcType="BIGINT"></result>
+      <result column="STATUS" property="status" jdbcType="VARCHAR"></result>
+    </collection>
+  </resultMap>
+  <insert id="insert" useGeneratedKeys="true" keyProperty="orderId">
+        INSERT INTO t_order (
+          user_id, status
+        )
+        VALUES (
+        #{userId,jdbcType=INTEGER},
+        #{status,jdbcType=VARCHAR}
+        )
+  </insert>
+  
+  <select id="selectAll" resultMap="BaseResultMap">
+    SELECT * FROM T_ORDER order by user_id DESC
+  </select>
+
+  <select id="selectOrderByCondition" resultMap="BaseResultMap">
+    select o.order_id,
+        o.user_id,
+        o.status,
+        ot.order_item_id item_order_item_id,
+        ot.order_id item_order_id,
+        ot.user_id item_user_id,
+        ot.status item_status
+        from t_order o inner join t_order_item ot
+        on o.order_id = ot.order_id
+  </select>
+</mapper>
